@@ -1,5 +1,4 @@
 const prompt = require('prompt-sync')({sigint: true});
-let events = require('events');
 
 const hat = '^';
 const hole = 'O';
@@ -40,37 +39,26 @@ class Field {
 
     //Method that changes player position in the field and reprints
     set playerPosition(newPosition){
-        let preposition = this.playerPosition;
-        
-        var fieldLength = 0;
-        var fieldWidth = 0;
-
-        for(let arr in this.field){
-            fieldLength++;
-        }
-        for(let arr in this.field[0]){
-            fieldWidth++;
-        }
-
         //Exit game
         if(newPosition === 'e'){
-            console.log("\nYou have exited the game.");
+            console.clear();
+            console.log("\nYou have exited the game.\n");
             process.exit();
         }
 
         //changes player position in the field
         switch(newPosition){
             case 'w':
-                preposition.y -= 1;
+                this.playerPosition.y -= 1;
                 break;
             case 's':
-                preposition.y += 1;
+                this.playerPosition.y += 1;
                 break;
             case 'a':
-                preposition.x -= 1;
+                this.playerPosition.x -= 1;
                 break;
             case 'd':
-                preposition.x += 1;
+                this.playerPosition.x += 1;
                 break;
             default:
                 this.badInput = true;
@@ -78,21 +66,21 @@ class Field {
         }
 
         //checks if player is out of bounds
-        if(this.field[preposition.y] === undefined || this.field[preposition.x] === undefined){
+        if(this.field[this.playerPosition.y] === undefined || this.field[this.playerPosition.x] === undefined){
             this.border = true;
 
             switch(newPosition){
                 case 'w':
-                    preposition.y += 1;
+                    this.playerPosition.y += 1;
                     break;
                 case 's':
-                    preposition.y -= 1;
+                    this.playerPosition.y -= 1;
                     break;
                 case 'a':
-                    preposition.x += 1;
+                    this.playerPosition.x += 1;
                     break;
                 case 'd':
-                    preposition.x -= 1;
+                    this.playerPosition.x -= 1;
                     break;
             }
 
@@ -104,17 +92,17 @@ class Field {
             this.field[this.playerPosition.y][this.playerPosition.x] = pathCharacter;
         }
         
-        this.print()
+        this.print();
         
     }
 
     //checks if player has found the hat or fell into a hole
     hatOrHole(){
         if(this.field[this.playerPosition.y][this.playerPosition.x] === hat){
-            console.log("You found the hat! You win!");
+            console.log("\n You found the hat! You win!\n ");
             process.exit();
         } else if(this.field[this.playerPosition.y][this.playerPosition.x] === hole){
-            console.log("You fell into a hole! You lose!");
+            console.log("\n You fell into a hole! You lose! \n");
             process.exit();
         }
     }
@@ -122,6 +110,8 @@ class Field {
     //prints the field with player position
     print() {
         console.clear();
+        console.log("\nYou are in the field. You can move with 'w', 'a', 's', 'd'. Type 'e' to exit the game.");
+        console.log("You are '*' and the hat is '^'. Watch out for holes 'O'!\n");
         this.field.forEach(row => {
             console.log(row.join(' '));
         });
@@ -132,20 +122,54 @@ class Field {
             console.log("Invalid input! Please try again.");
             this.badInput = false;
         }
-        console.log("What way do you want to go? (E to Exit)> ")
+        process.stdout.write("What way do you want to go? >");
+    }
+
+    //generates a new field with a player, a hat and holes
+    static generateField(height, width, holePercent) {
+        let field = [];
+        let holeCount = Math.ceil(height * width * holePercent / 100);
+        let x, y;
+
+        //Gens field
+        for (let i = 0; i < height; i++) {
+            field[i] = [];
+            for (let j = 0; j < width; j++) {
+                field[i][j] = fieldCharacter;
+            }
+        }
+
+        //Gens holes
+        for(let i = 0; i < holeCount; i++) {
+            x = Math.floor(Math.random() * height);
+            y = Math.floor(Math.random() * width);
+            if (field[x][y] === fieldCharacter && (x !== 0 || y !== 0)) {
+                field[x][y] = hole;
+            }else {
+                i--;
+            }
+        }
+
+        ///Gens hat
+        do {
+            x = Math.floor(Math.random() * height);
+            y = Math.floor(Math.random() * width);
+        } while (field[x][y] !== fieldCharacter || (x === 0 && y === 0));
+        field[x][y] = hat;
+
+        field[0][0] = pathCharacter;
+        
+        return field;
     }
 }
 
-// creates a new field with a player, a hat and holes
-const myField = new Field([
-    ['*', '░', 'O'],
-    ['░', 'O', '░'],
-    ['░', '^', '░'],
-  ]);
-  
-  myField.print();
+const generateField = Field.generateField(5, 5, 20);
 
-// moves the player in the field
+const myField = new Field(generateField);
+  
+myField.print();
+
+// Player input
 process.stdin.on('data', (userInput) => {
     userInput = userInput.toString().trim().toLowerCase();
     myField.playerPosition = userInput;
