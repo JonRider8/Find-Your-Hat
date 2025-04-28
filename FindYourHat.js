@@ -157,7 +157,14 @@ class Field {
         } while (field[x][y] !== fieldCharacter || (x === 0 && y === 0));
         field[x][y] = hat;
 
-        field[0][0] = pathCharacter;
+        //Gens player
+        do {
+            x = Math.floor(Math.random() * height);
+            y = Math.floor(Math.random() * width);
+        } while (field[x][y] !== fieldCharacter);
+        field[x][y] = pathCharacter;
+        this.playerPosition.x = x;
+        this.playerPosition.y = y;
         
         return field;
     }
