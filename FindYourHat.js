@@ -1,12 +1,13 @@
 const prompt = require('prompt-sync')({sigint: true});
+var term = require( 'terminal-kit' ).terminal // Importing terminal kit for colored output
 
-const hat = '^';
-const hole = 'O';
-const fieldCharacter = '░';
+const hat = term.brightCyan.str('^');
+const hole = term.yellow.str('O');
+const fieldCharacter = term.green.str('░');
 const pathCharacter = '*';
 
 class Field {
-    constructor(field, playerPosition) {
+    constructor(field) {
         this._field = field;
         this._playerPosition = { x: 0, y: 0 };
         this._border = false;
@@ -121,8 +122,8 @@ class Field {
     //prints the field with player position
     print() {
         console.clear();
-        console.log("\nYou are in the field. You can move with 'w', 'a', 's', 'd'. Type 'e' to exit the game.");
-        console.log("You are '*' and the hat is '^'. Watch out for holes 'O'!\n");
+        term.red("\nYou are in the ").green("field").red(". You can move with ").yellow("'w'").red(", ").blue("'a'").red(", ").magenta('s').red(", ").cyan("'d'").red(". Type 'e' to exit the game.");
+        term.red("\nYou are '").white("*").red("' and the hat is '").brightCyan("^").red("'. Watch out for holes 'O'!\n");
         this.field.forEach(row => {
             console.log(row.join(' '));
         });
