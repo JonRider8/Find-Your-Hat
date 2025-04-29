@@ -6,7 +6,7 @@ const fieldCharacter = '░';
 const pathCharacter = '*';
 
 class Field {
-    constructor(field) {
+    constructor(field, playerPosition) {
         this._field = field;
         this._playerPosition = { x: 0, y: 0 };
         this._border = false;
@@ -107,6 +107,17 @@ class Field {
         }
     }
 
+    findPlayer(){
+        for(let i = 0; i < this.field.length; i++){
+            for(let j = 0; j < this.field[i].length; j++){
+                if(this.field[i][j] === pathCharacter){
+                    this.playerPosition.x = j;
+                    this.playerPosition.y = i;
+                }
+            }
+        }
+    }
+
     //prints the field with player position
     print() {
         console.clear();
@@ -163,8 +174,6 @@ class Field {
             y = Math.floor(Math.random() * width);
         } while (field[x][y] !== fieldCharacter);
         field[x][y] = pathCharacter;
-        this.playerPosition.x = x;
-        this.playerPosition.y = y;
         
         return field;
     }
@@ -175,6 +184,8 @@ const generateField = Field.generateField(5, 5, 20);
 const myField = new Field(generateField);
   
 myField.print();
+
+myField.findPlayer();
 
 // Player input
 process.stdin.on('data', (userInput) => {
